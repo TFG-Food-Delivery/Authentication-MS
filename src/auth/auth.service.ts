@@ -12,7 +12,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
   private readonly logger = new Logger('AuthService');
   onModuleInit() {
     this.$connect();
-    this.logger.log('MongoDB connected');
+    this.logger.log('Database connected');
   }
 
   constructor(private readonly jwtService: JwtService) {
