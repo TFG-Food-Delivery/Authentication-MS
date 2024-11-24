@@ -4,3 +4,5 @@ PORT=3002
 NATS_SERVERS="nats://localhost:4222"
 
 DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public"
+
+JWT_SECRET='secret'
