@@ -6,11 +6,17 @@ import { LoginUserDto, RegisterUserDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { RpcException } from '@nestjs/microservices';
 import { envs } from 'src/config';
+import { readReplicas } from '@prisma/extension-read-replicas';
 
 @Injectable()
 export class AuthService extends PrismaClient implements OnModuleInit {
   private readonly logger = new Logger('AuthService');
   onModuleInit() {
+    this.$extends(
+      readReplicas({
+        url: [envs.follower1DatabaseUrl, envs.follower2DatabaseUrl],
+      }),
+    );
     this.$connect();
     this.logger.log('Database connected');
   }
