@@ -8,6 +8,7 @@ CREATE TABLE "User" (
     "name" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "image" TEXT,
+    "dateOfBirth" TIMESTAMP(3) NOT NULL,
     "phoneNumber" TEXT NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'CUSTOMER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
