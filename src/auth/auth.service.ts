@@ -185,7 +185,6 @@ export class AuthService extends PrismaClient implements OnModuleInit {
         };
         newToken = token;
       }
-      console.log(user);
       return {
         user,
         newToken,

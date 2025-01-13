@@ -17,7 +17,7 @@ export class UploadS3Service {
         message: 'User ID is required',
       });
     }
-    console.log('Entra a uploadFile');
+
     try {
       const fileKey = `profile-images/${userId}_profile-image`;
       const buffer = Buffer.from(file.buffer, 'base64');

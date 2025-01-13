@@ -14,9 +14,7 @@ export class UploadS3Controller {
 
   @MessagePattern('uploadProfileImage')
   async uploadImage(@Payload() data: any) {
-    console.log('uploadProfileImage');
     const { userId, file } = data;
-    console.log('data:', data);
     return this.uploadS3service.uploadFile(file, userId);
   }
 }
