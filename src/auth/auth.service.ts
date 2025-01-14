@@ -10,8 +10,8 @@ import { PrismaClient } from '@prisma/client';
 import { JwtPayloadInterface } from './interfaces/jwt-payload.interface';
 import { LoginUserDto, RegisterUserDto, UpdateCustomerUserDto } from './dto';
 import * as bcrypt from 'bcrypt';
-import { RpcException } from '@nestjs/microservices';
-import { envs } from 'src/config';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { envs, NATS_SERVICE } from 'src/config';
 import { readReplicas } from '@prisma/extension-read-replicas';
 import { getAuth } from 'firebase-admin/auth';
 import { CurrentUser } from './types/current-user.type';
@@ -40,6 +40,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
   }
 
   constructor(
+    @Inject(NATS_SERVICE) private readonly client: ClientProxy,
     @Inject('create-restaurant-saga')
     private createRestaurantSaga: CreateRestaurantSaga,
     @Inject('create-customer-saga')
@@ -223,6 +224,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
   async createCourier(createCourierDto: CreateCourierDto) {
     await this.createCourierSaga.execute(createCourierDto);
     const user = await this.findUserByEmail(createCourierDto.user.email);
+    this.sendRegistrationConfirmationMail(user);
     return {
       message: 'Courier created',
       user: {
@@ -238,6 +240,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
   async createCustomer(createCustomerDto: CreateCustomerDto) {
     await this.createCustomerSaga.execute(createCustomerDto);
     const user = await this.findUserByEmail(createCustomerDto.user.email);
+    this.sendRegistrationConfirmationMail(user);
     return {
       message: 'Customer created',
       user: {
@@ -253,6 +256,7 @@ export class AuthService extends PrismaClient implements OnModuleInit {
   async createRestaurant(createRestaurantDto: CreateRestaurantDto) {
     await this.createRestaurantSaga.execute(createRestaurantDto);
     const user = await this.findUserByEmail(createRestaurantDto.user.email);
+    this.sendRegistrationConfirmationMail(user);
     return {
       message: 'Restaurant created',
       user: {
@@ -264,5 +268,15 @@ export class AuthService extends PrismaClient implements OnModuleInit {
       },
       token: await this.signJWT(user),
     };
+  }
+
+  async sendRegistrationConfirmationMail(userRegisteredPayload: any) {
+    this.client.emit('user_registered', {
+      id: userRegisteredPayload.id,
+      email: userRegisteredPayload.email,
+      name: userRegisteredPayload.name,
+      image: userRegisteredPayload.image,
+      role: userRegisteredPayload.role,
+    });
   }
 }
